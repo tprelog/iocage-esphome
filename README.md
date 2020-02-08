@@ -5,7 +5,7 @@ Artifact file(s) for ESPHome (python virtualenv) on FreeNAS 11
 
 - This will create an 11.3-RELEASE iocage-jail for ESPHome on FreeNAS 11.x
 - This will install ESPHome in a Python virtualenv
-    - ESPHome *was created by request and with the help of @CyanoFresh*
+    - *This FreeNAS plugin was created by request and with the help of @CyanoFresh*
 
 NAME | SERVICE | VIRTUALENV | PORT | USER | CONFIG DIR
 :---: | :---: | :---: | :---: | :---: | :---: |
@@ -24,6 +24,8 @@ ESPHome | esphome | /usr/local/srv/esphome | 6052 | esphome | /var/db/esphome
 
 - *Coming Soon* -- FreeNAS 11.3 Community Plugin
 - The plugin-jail is *only available for FreeNAS 11.3*
+
+###### Try it Now
 
 ```bash
 iocage fetch -P esphome -g https://github.com/tprelog/freenas-plugin-index.git
