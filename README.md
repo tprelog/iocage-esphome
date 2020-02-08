@@ -1,7 +1,7 @@
 # iocage-esphome
 Artifact file(s) for ESPHome (python virtualenv) on FreeNAS 11
 
-**This release is intended for FreeNAS 11.3 but should work with FreeNAS-11.2-U7 or later**
+**The current release is intended for FreeNAS 11.3 but should work with FreeNAS-11.2-U7 or later**
 
 - This will create an 11.3-RELEASE iocage-jail for ESPHome on FreeNAS 11.x
 - This will install ESPHome in a Python virtualenv
