@@ -22,7 +22,7 @@ ESPHome | esphome | /usr/local/srv/esphome | 6052 | esphome | /var/db/esphome
 
 #### Installation
 
-**ESPHome is available from the Communtity Plugins page on FreeNAS 11.3**
+**ESPHome is available from the Community Plugins page on FreeNAS 11.3**
 - *Coming Soon* -- FreeNAS 11.3 Community Plugin
 
 ![img][FreeNAS_plugins]
