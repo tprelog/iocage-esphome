@@ -69,7 +69,7 @@ esphome_upgrade() {
     service ${name} stop
     su ${esphome_user} -c '
       source ${1}/bin/activate || exit 1
-      pip3 install --upgrade esphome
+      pip3 install --upgrade esphome pillow
       #export PLATFORMIO_CORE_DIR="${2}/.platformio"
       #platformio upgrade
       #platformio update
