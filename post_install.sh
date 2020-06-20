@@ -73,8 +73,8 @@ install_service() {
     
     ${1} -m venv ${2}
     source ${2}/bin/activate || exit 1
-    pip3 install --upgrade pip
-    pip3 install --upgrade ${4}
+    pip3 install --upgrade pip wheel
+    pip3 install esphome pillow
     deactivate
     
     ## Download and install extra files needed for esp32 support on *BSD
