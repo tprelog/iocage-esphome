@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 
-  # pkg install autoconf bash ca_root_nss gcc git-lite gmake pkgconf python37 wget
+  # pkg install autoconf bash ca_root_nss curl gcc git-lite gmake pkgconf python37 py37-pillow
   # git clone -b 11.3-RELEASE https://github.com/tprelog/iocage-esphome.git /root/.iocage-esphome
   # bash /root/.iocage-esphome/post_install.sh standard
+
+## Ensure that 'curl' and 'py37-pillow' have been installed
+# (These are currently not listed in the plugin manifest)
+pkg install -y curl py37-pillow
 
 ## Changing these variables is not fully supported in this script.
 #   These values may still be "hard-coded" in other locations.
@@ -67,9 +71,6 @@ install_service() {
   ln -s {${_srv_conf}/.cache,${_srv_conf}/.platformio} /
   # remove: rm -rf {/.platformio,/.cache}
   
-  # Install curl
-  pkg install -y curl
-
     su ${v2srv_user} -c '
     echo -e "Installing ${4}...\n"
     cd ${3}
@@ -80,14 +81,14 @@ install_service() {
     pip3 install esphome pillow
     deactivate
     
-    ## Platformio no longer provides the required toolchains for *BSD
+    ## Platformio is missing, or no longer provides the required toolchains for *BSD
     ## This attempts to use an existing copy of the previous toolchain until a new version can be compiled
     url2=https://github.com/tprelog/iocage-esphome/raw/toolchain-hack/toolchains
     pkg2=toolchain-xtensa-freebsd_amd64-2.40802.191122-HACK.tar.gz
     
     echo -e "\nAttempting to add ESP8266 support on FreeBSD...\n"
-    curl -o /tmp/toolchain-xtensa.tar.gz -OLs ${url2}/${pkg2}
-    mkdir -p "${3}/.platformio/packages" \
+    curl -o /tmp/toolchain-xtensa.tar.gz -OLs ${url2}/${pkg2} \
+    && mkdir -p "${3}/.platformio/packages" \
     && tar -x -C "${3}/.platformio/packages" -f /tmp/toolchain-xtensa.tar.gz \
     || echo -e "\nFailed to add ESP8266 support -- missing toolchain-xtensa"
     
@@ -99,8 +100,8 @@ install_service() {
     pkg=toolchain-xtensa32-FreeBSD.11.amd64-2.50200.80.tar.gz
     
     echo -e "\nAttempting to add ESP32 support on FreeBSD...\n"
-    curl -o /tmp/${pkg} -OLs ${url}/${pkg}
-    mkdir -p "${3}/.platformio/packages/toolchain-xtensa32" \
+    curl -o /tmp/${pkg} -OLs ${url}/${pkg} \
+    && mkdir -p "${3}/.platformio/packages/toolchain-xtensa32" \
     && tar -x -C "${3}/.platformio/packages/toolchain-xtensa32" -f /tmp/${pkg} \
     || echo -e "\nFailed to add ESP32 support -- missing toolchain-xtensa32"
     
