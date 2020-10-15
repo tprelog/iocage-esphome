@@ -66,6 +66,9 @@ install_service() {
   ## Workaround related "/.cache" and "/.platformio" permission errors
   ln -s {${_srv_conf}/.cache,${_srv_conf}/.platformio} /
   # remove: rm -rf {/.platformio,/.cache}
+  
+  # Install curl
+  pkg install -y curl
 
     su ${v2srv_user} -c '
     echo -e "Installing ${4}...\n"
@@ -77,15 +80,26 @@ install_service() {
     pip3 install esphome pillow
     deactivate
     
+    ## Platformio no longer provides the required toolchains for *BSD
+    ## This attempts to use an existing copy of the previous toolchain until a new version can be compiled
+    url2=https://github.com/tprelog/iocage-esphome/raw/toolchain-hack/toolchains
+    pkg2=toolchain-xtensa-freebsd_amd64-2.40802.191122-HACK.tar.gz
+    
+    echo -e "\nAttempting to add ESP8266 support on FreeBSD...\n"
+    curl -o /tmp/toolchain-xtensa.tar.gz -OLs ${url2}/${pkg2}
+    mkdir -p "${3}/.platformio/packages" \
+    && tar -x -C "${3}/.platformio/packages" -f /tmp/toolchain-xtensa.tar.gz \
+    || echo -e "\nFailed to add ESP8266 support -- missing toolchain-xtensa"
+    
     ## Download and install extra files needed for esp32 support on *BSD
     ## Thank You to @CyanoFresh for sharing this (link below)
     ## https://github.com/tprelog/iocage-homeassistant/issues/5#issuecomment-573179387
-        
+    
     url=https://github.com/trombik/toolchain-xtensa32/releases/download/0.2.0
     pkg=toolchain-xtensa32-FreeBSD.11.amd64-2.50200.80.tar.gz
     
     echo -e "\nAttempting to add ESP32 support on FreeBSD...\n"
-    wget -q -O /tmp/${pkg} ${url}/${pkg}
+    curl -o /tmp/${pkg} -OLs ${url}/${pkg}
     mkdir -p "${3}/.platformio/packages/toolchain-xtensa32" \
     && tar -x -C "${3}/.platformio/packages/toolchain-xtensa32" -f /tmp/${pkg} \
     || echo -e "\nFailed to add ESP32 support -- missing toolchain-xtensa32"
@@ -143,8 +157,8 @@ if [ "${ctrl}" = "post_install" ]; then
     cp_overlay || exit 1
     first_run || exit 1
     service ${v2srv} status \
-     && echo -e "\n ${grn}http://${_srv_ip}:${v2srv_port}${end}\n"
-     
+    && echo -e "\n ${grn}http://${_srv_ip}:${v2srv_port}${end}\n"
+    
   elif [ "${1}" = "esphome" ]; then
     # Used by this FreeNAS jail to (Re)install ESPHome
     install_service && echo; service ${v2srv} status \
