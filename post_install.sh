@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 
-  # pkg install autoconf bash ca_root_nss curl gcc git-lite gmake pkgconf python37
+  # pkg install autoconf bash ca_root_nss curl gcc git-lite gmake pkgconf python37 py37-pillow
   # git clone https://github.com/tprelog/iocage-esphome.git /root/.iocage-esphome
   # bash /root/.iocage-esphome/post_install.sh standard
+
+## Ensure that 'curl' and 'py37-pillow' have been installed
+# (These are currently not listed in the plugin manifest)
+pkg install -y curl py37-pillow
 
 ## Changing these variables is not fully supported in this script.
 #   These values may still be "hard-coded" in other locations.
@@ -67,10 +71,6 @@ install_service() {
   ln -s {${_srv_conf}/.cache,${_srv_conf}/.platformio} /
   # remove: rm -rf {/.platformio,/.cache}
   
-  # Ensure that 'curl' and 'jpeg' have been installed
-  # These are currently not listed in the plugin manifest
-  pkg install -y curl jpeg
-
     su ${v2srv_user} -c '
     echo -e "Installing ${4}...\n"
     cd ${3}
@@ -81,7 +81,7 @@ install_service() {
     pip3 install esphome pillow
     deactivate
     
-    ## Platformio no longer provides the required toolchains for *BSD
+    ## Platformio is missing, or no longer provides the required toolchains for *BSD
     ## This attempts to use an existing copy of the previous toolchain until a new version can be compiled
     url2=https://github.com/tprelog/iocage-esphome/raw/toolchain-hack/toolchains
     pkg2=toolchain-xtensa-freebsd_amd64-2.40802.191122-HACK.tar.gz
