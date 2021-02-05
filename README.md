@@ -1,10 +1,10 @@
 # iocage-esphome
+
 Artifact file(s) for [ESPHome][1] (python virtualenv)
 
-*This FreeNAS plugin was created by request and with the help of @CyanoFresh*
+:warning: This plugin is not actively maintained
 
-- This will create an iocage-jail for [ESPHome][1]
-- ESPHome will be installed in a python virtualenv
+- ESPHome will be installed in a Python Virtualenv
 
 NAME | SERVICE | VIRTUALENV | PORT | USER | CONFIG DIR
 :---: | :---: | :---: | :---: | :---: | :---: |
