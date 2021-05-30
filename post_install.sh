@@ -16,7 +16,7 @@ plugin_overlay="/root/.iocage-esphome/overlay"   # Used for `post_install.sh sta
 v2srv=esphome       # This script only supports installing "ESPHome"
 v2srv_port=6052     # The default port used by ESPHome
 
-python=python3.8
+python=python3
 ve_dir=/usr/local/srv   # example alternative: /srv
 ve_conf=/var/db         # example alternative: /home
 
