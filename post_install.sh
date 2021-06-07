@@ -4,9 +4,9 @@
   # git clone https://github.com/tprelog/iocage-esphome.git /root/.iocage-esphome
   # bash /root/.iocage-esphome/post_install.sh standard
 
-## Ensure that 'curl' and 'py37-pillow' have been installed
+## Ensure that 'curl' and 'py38-pillow' have been installed
 # (These are currently not listed in the plugin manifest)
-pkg install -y curl py37-pillow
+pkg install -y curl py38-pillow
 
 ## Changing these variables is not fully supported in this script.
 #   These values may still be "hard-coded" in other locations.
@@ -16,7 +16,7 @@ plugin_overlay="/root/.iocage-esphome/overlay"   # Used for `post_install.sh sta
 v2srv=esphome       # This script only supports installing "ESPHome"
 v2srv_port=6052     # The default port used by ESPHome
 
-python=python3.7
+python=python3
 ve_dir=/usr/local/srv   # example alternative: /srv
 ve_conf=/var/db         # example alternative: /home
 
