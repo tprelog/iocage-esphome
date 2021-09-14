@@ -15,7 +15,7 @@ fi
 # shellcheck disable=SC1091
 . /etc/rc.subr && load_rc_config ${service_name}
 
-virtualenv="${esphome_venv:?}"
+virtualenv="${esphome_venv:-/usr/local/srv/esphome}"
 
 # ----------------------------------
 # Step #2: User defined function

@@ -11,11 +11,11 @@ rcvar=${name}_enable
 
 . /etc/rc.subr && load_rc_config ${name}
 
-: "${esphome_enable:='NO'}"
-: "${esphome_user:='esphome'}"
-: "${esphome_group:='esphome'}"
-: "${esphome_config_dir:='/var/db/esphome'}"
-: "${esphome_venv:='/usr/local/srv/esphome'}"
+: "${esphome_enable:=NO}"
+: "${esphome_user:=esphome}"
+: "${esphome_group:=esphome}"
+: "${esphome_config_dir:=/var/db/esphome}"
+: "${esphome_venv:=/usr/local/srv/esphome}"
 
 command='/usr/sbin/daemon'
 
