@@ -4,96 +4,46 @@
 # REQUIRE: LOGIN
 # KEYWORD: shutdown
 #
-# esphome_enable: Set to YES to enable the esphome service.
-#       Default: NO
-# esphome_user: The user account used to run the esphome daemon.
-#       This is optional, however do not specifically set this to an
-#       empty string as this will cause the daemon to run as root.
-#       Default: esphome
-# esphome_group: The group account used to run the esphome daemon.
-#       This is optional, however do not specifically set this to an
-#       empty string as this will cause the daemon to run with group wheel.
-#       Default: esphome
-#
-# esphome_venv: Directory where esphome virtualenv is located.
-#       Default:  "/usr/local/srv/esphome"
-#       Change:   `sysrc esphome_venv="/srv/esphome"`
-#       UnChange: `sysrc -x esphome_venv`
-#
-# esphome_config_dir:	Full path to esphome settings.conf.
-#       Default:  "/var/db/esphome"
-#       Change:   'sysrc esphome_config_dir="/home/${USER}/esphome"`
-#       UnChange: `sysrc -x esphome_config_dir`
-#
-# -------------------------------------------------------
-# Copy this file to '/usr/local/etc/rc.d/esphome' 
-# `chmod +x /usr/local/etc/rc.d/esphome`
-# `sysrc esphome_enable=YES`
-# `service esphome start`
-# ---------------------------------------------
 
-. /etc/rc.subr
+# shellcheck disable=SC1091,2034
 name=esphome
 rcvar=${name}_enable
 
-pidfile_child="/var/run/${name}.pid"
-pidfile="/var/run/${name}_daemon.pid"
+. /etc/rc.subr && load_rc_config ${name}
+
+: "${esphome_enable:='NO'}"
+: "${esphome_user:='esphome'}"
+: "${esphome_group:='esphome'}"
+: "${esphome_config_dir:='/var/db/esphome'}"
+: "${esphome_venv:='/usr/local/srv/esphome'}"
+
+command='/usr/sbin/daemon'
+
 logfile="/var/log/${name}_daemon.log"
-
-: ${esphome_enable:="NO"}
-: ${esphome_user:="esphome"}
-: ${esphome_group:="esphome"}
-: ${esphome_config_dir:="/var/db/esphome"}
-: ${esphome_venv:="/usr/local/srv/esphome"}
-
-command="/usr/sbin/daemon"
-extra_commands="upgrade test"
+pidfile="/var/run/${name}_daemon.pid"
+pidfile_child="/var/run/${name}.pid"
 
 start_precmd="${name}_precmd"
 esphome_precmd() {
-    rc_flags="-f -o ${logfile} -P ${pidfile} -p ${pidfile_child} ${esphome_venv}/bin/esphome ${esphome_config_dir} dashboard ${rc_flags}"
-    [ ! -e "${pidfile_child}" ] && install -g ${esphome_group} -o ${esphome_user} -- /dev/null "${pidfile_child}"
-    [ ! -e "${pidfile}" ] && install -g ${esphome_group} -o ${esphome_user} -- /dev/null "${pidfile}"
-    [ -e "${logfile}" ] && rm -f -- "${logfile}"
-    install -g ${esphome_group} -o ${esphome_user} -- /dev/null "${logfile}"
+  HOME="$(getent passwd "${esphome_user}" | cut -d: -f6)"
+  PATH="${esphome_venv}/bin:${PATH}"
+  install -g ${esphome_group} -o ${esphome_user} -- /dev/null "${logfile}"
+  install -g ${esphome_group} -o ${esphome_user} -- /dev/null "${pidfile}"
+  install -g ${esphome_group} -o ${esphome_user} -- /dev/null "${pidfile_child}"
+  rc_flags="-f -o ${logfile} -P ${pidfile} -p ${pidfile_child} esphome dashboard ${esphome_config_dir}"
+}
+
+start_postcmd="${name}_poststart"
+esphome_poststart() {
+  sleep 1
+  run_rc_command status
 }
 
 stop_postcmd="${name}_postcmd"
 esphome_postcmd() {
-    rm -f -- "${pidfile}"
-    rm -f -- "${pidfile_child}"
+  rm -f -- "${pidfile}"
+  rm -f -- "${pidfile_child}"
 }
 
-upgrade_cmd="${name}_upgrade"
-esphome_upgrade() {
-    service ${name} stop
-    su ${esphome_user} -c '
-      source ${1}/bin/activate || exit 1
-      pip3 install --upgrade esphome pillow
-      #export PLATFORMIO_CORE_DIR="${2}/.platformio"
-      #platformio upgrade
-      #platformio update
-      deactivate
-    ' _ ${esphome_venv} ${esphome_config_dir} || exit 1
-    [ $? == 0 ] && service ${name} start
-}
-
-test_cmd="${name}_test"
-esphome_test() {
-    echo -e "\nTesting virtualenv...\n"
-    [ ! -d "${esphome_venv}" ] && echo -e " NO DIRECTORY: ${esphome_venv}\n" && exit
-    [ ! -f "${esphome_venv}/bin/activate" ] && echo -e " NO FILE: ${esphome_venv}/bin/activate\n" && exit
-
-    ## Switch users / activate virtualenv / run a command
-    su "${esphome_user}" -c '
-      source ${@}/bin/activate || exit 2
-      echo " $(python --version)" || exit 3
-      echo " ESPHome $(pip3 show esphome | grep Version | cut -d" " -f2)" || exit 4
-      deactivate
-    ' _ ${esphome_venv}
-    
-    [ $? != 0 ] && echo "exit $?"
-}
-
-load_rc_config ${name}
-run_rc_command "$1"
+umask "${esphome_umask:-022}"
+run_rc_command "${1}"

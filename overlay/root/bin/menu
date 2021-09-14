@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+
+# A menu driven shell script, hacked together from internet samples and other shit.
+# Nothing more than a shortcut to execute some basic service commands.
+
+service_name='esphome'
+
+## This menu is intended for the TrueNAS CORE community plugin.
+## Some menu actions require the plugin's post_install script.
+if [ ! -x '/root/post_install.sh' ]; then
+  echo "Script not found or is not executable: /root/post_install.sh"
+  exit 1
+fi
+
+# shellcheck disable=SC1091
+. /etc/rc.subr && load_rc_config ${service_name}
+
+virtualenv="${esphome_venv:?}"
+
+# ----------------------------------
+# Step #2: User defined function
+# ----------------------------------
+
+show_banner_0() {
+  clear
+  echo "${blu}"
+  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  echo "              MANAGE THE ESPHOME SERVICE              "
+  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  echo -ne "${end}"
+}
+
+service_menu() {
+  ## Show a menu and run basic commands for the plugin's service.
+  local cmd commands extra_commands
+  commands="status restart upgrade start stop"
+
+  ## Toggle installed or removed depending on directory.
+  if [ ! -d "${virtualenv}" ]; then
+    extra_commands="install"
+  else
+    extra_commands="remove"
+  fi
+
+  ## Prompt for user input and run command when provided.
+  PS3=""$'\n'"${blu}Select: ${end}" ; echo
+  select cmd in "exit_menu" ${commands} ${extra_commands}; do
+    case "${cmd}" in
+      "exit_menu")
+        goodbye ; exit 0
+        ;;
+      "status"|"restart"|"start"|"stop")
+        service "${1}" "${cmd}"
+        pause ; break
+        ;;
+      "install"|"upgrade"|"remove")
+        /root/post_install.sh "${cmd}"
+        pause ; break
+        ;;
+      ## Anything else is an invalid option.
+      *) echo "Sorry, that is not an option" && sleep 1
+        ;;
+    esac
+  done
+}
+
+# shellcheck disable=SC2034
+pause() {
+  echo ; read -rp "Press ENTER to continue..." fackEnterKey
+}
+
+goodbye() {
+  echo -e "${end}"
+  clear ; exit
+}
+
+load_colors() {
+  blu=$'\e[38;5;39m'
+  end=$'\e[0m'
+} ; load_colors # Only loaded once
+
+# ----------------------------------------------
+# Step #3: Trap CTRL+C, CTRL+Z and quit singles
+# ----------------------------------------------
+
+# Define and use traps to clean up all temp files
+#  Trap on --- use 'kill -l' to list all
+#   1 = SIGHUP (Hangup of controlling terminal or death of parent)
+#   2 = SIGINT (Interrupted by the keyboard)
+#   3 = SIGQUIT (Quit signal from keyboard)
+#   6 = SIGABRT (Aborted by abort(3))
+#
+## It's a trap! goodbye
+trap goodbye 1 2 3 6
+
+# -----------------------------------
+# Step #4: Main logic - infinite loop
+# ------------------------------------
+
+while true; do
+  show_banner_0 && service_menu "${service_name}"
+done
