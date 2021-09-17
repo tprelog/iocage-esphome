@@ -169,7 +169,6 @@ elif [ "${1}" == 'install' ]; then
     && enablestart_service \
     && show_url
 elif [ "${1}" == 'remove' ]; then
-  disablestop_service
   remove_service
 elif [ "${1}" == 'upgrade' ]; then
   upgrade_service
