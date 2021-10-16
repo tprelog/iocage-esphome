@@ -30,7 +30,7 @@ esphome_precmd() {
   install -g ${esphome_group} -o ${esphome_user} -- /dev/null "${logfile}"
   install -g ${esphome_group} -o ${esphome_user} -- /dev/null "${pidfile}"
   install -g ${esphome_group} -o ${esphome_user} -- /dev/null "${pidfile_child}"
-  rc_flags="-f -o ${logfile} -P ${pidfile} -p ${pidfile_child} esphome dashboard ${esphome_config_dir}"
+  rc_flags="-f -o ${logfile} -P ${pidfile} -p ${pidfile_child} esphome ${esphome_config_dir} dashboard"
 }
 
 start_postcmd="${name}_poststart"
